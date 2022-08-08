@@ -1,5 +1,7 @@
 //Rafael M. dos Santos
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -104,30 +106,50 @@ public class EMA extends JFrame {
         // actions listeners for the menu items
         mnuInsert.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                selectWindow.setVisible(false);
+                updateWindow.setVisible(false);
+                deleteWindow.setVisible(false);
+                createWindow.setVisible(false);
                 insertWindow.setVisible(true);
             }
         });
 
         mnuCreate.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                selectWindow.setVisible(false);
+                updateWindow.setVisible(false);
+                deleteWindow.setVisible(false);
+                insertWindow.setVisible(false);
                 createWindow.setVisible(true);
             }
         });
 
         mnuSelect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                insertWindow.setVisible(false);
+                updateWindow.setVisible(false);
+                deleteWindow.setVisible(false);
+                createWindow.setVisible(false);
                 selectWindow.setVisible(true);
             }
         });
 
         mnuUpdate.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                selectWindow.setVisible(false);
+                insertWindow.setVisible(false);
+                deleteWindow.setVisible(false);
+                createWindow.setVisible(false);
                 updateWindow.setVisible(true);
             }
         });
 
         mnuDelete.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                selectWindow.setVisible(false);
+                insertWindow.setVisible(false);
+                updateWindow.setVisible(false);
+                createWindow.setVisible(false);
                 deleteWindow.setVisible(true);
             }
         });
@@ -225,11 +247,15 @@ class DeleteWindow extends JInternalFrame {
             p2.setLayout(new GridLayout(1,1));
             p1.setLayout(new BorderLayout());
 
-            lbl = new JLabel("Delete EMPLOYEE table?");
-            lbl.setFont(new Font("Arial", Font.BOLD, 20));
+            JTextPane txt = new JTextPane(); // using JTextPane to display html text on the screen
+            txt.setContentType("text/html");
+            txt.setText("<html><b><i>DELETE </b>employee table?</i><br></html>");
+
+            // lbl = new JLabel("Delete EMPLOYEE table?");
+            // lbl.setFont(new Font("Arial", Font.BOLD, 20));
             btnDelete = new JButton("Delete Table");
 
-            p1.add(lbl, BorderLayout.CENTER);
+            p1.add(txt, BorderLayout.CENTER);
             p2.add(btnDelete, BorderLayout.CENTER);
             p1.add(p2, BorderLayout.SOUTH);
             add(p1, BorderLayout.CENTER);
@@ -291,11 +317,12 @@ class CreateWindow extends JInternalFrame {
             p2.setLayout(new GridLayout(1,1));
             p1.setLayout(new BorderLayout());
 
-            lbl = new JLabel("Create EMPLOYEE table?");
-            lbl.setFont(new Font("Arial", Font.BOLD, 20));
+            JTextPane txt = new JTextPane(); // using JTextPane to display html text on the screen
+            txt.setContentType("text/html");
+            txt.setText("<html><b><i>CREATE </b>employee table?</i><br></html>");
             btnCreate = new JButton("Create Table");
 
-            p1.add(lbl, BorderLayout.CENTER);
+            p1.add(txt, BorderLayout.CENTER);
             p2.add(btnCreate, BorderLayout.CENTER);
             p1.add(p2, BorderLayout.SOUTH);
 
@@ -425,7 +452,9 @@ class UpdateWindow extends JInternalFrame {
     JTextField txtSSN, txtName, txtSalary, txtDept, txtSSNToUpdate;
     JButton btnUpdate, btnSearch, btnClear;
     JLabel lblSSN, lblName, lblSalary, lblDept, lblSSNToUpdate;
-    JTextArea ta;
+    Object data [][];
+    JTable table;
+    DefaultTableModel model;
 
     UpdateWindow(JDesktopPane d, Connection con){
         super("Update Window", true, true, false, true);
@@ -454,8 +483,13 @@ class UpdateWindow extends JInternalFrame {
             add(p1, BorderLayout.NORTH);
 
             p1 = new JPanel();
-            JScrollPane scrollPane = new JScrollPane(ta = new JTextArea(13, 90));
-            ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
+            DefaultTableModel model = new DefaultTableModel();
+            table = new JTable(model);
+            model.addColumn("SSN");
+            model.addColumn("NAME");
+            model.addColumn("SALARY");
+            model.addColumn("DEPARTMENT");
+            JScrollPane scrollPane = new JScrollPane(table);
             p1.add(scrollPane);
             add(p1, BorderLayout.CENTER);
 
@@ -482,21 +516,18 @@ class UpdateWindow extends JInternalFrame {
                             txtName.setText(rs.getString("name"));
                             txtSalary.setText(rs.getString("salary"));
                             txtDept.setText(rs.getString("dept"));
-                            ta.setText("");
-
-                            ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
-                            ta.setText("SSN\t\t\tNAME\t\t\tSALARY\t\t\tDEPARTMENT\n");
 
                             String s = rs.getString(1);
                             String name = rs.getString(2);
                             String salary = rs.getString(3);
                             String dept = rs.getString(4);
-                            ta.append(s + "\t\t\t" + name + "\t\t\t" + salary + "\t\t\t" + dept + "\n");
+                            model.addRow(new Object[]{s, name, salary, dept});
                         } else {
-                            ta.setText("No record found!");
+                            model.setRowCount(0);
+                            JOptionPane.showMessageDialog(null, "No record found!", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     } catch (SQLException e1) {
-                        ta.setText("Error in searching record!");
+                        JOptionPane.showMessageDialog(null, "No record found!", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
@@ -508,7 +539,7 @@ class UpdateWindow extends JInternalFrame {
                     txtName.setText("");
                     txtSalary.setText("");
                     txtDept.setText("");
-                    ta.setText("");
+                    model.setRowCount(0);
                 }
             });
 
@@ -527,9 +558,9 @@ class UpdateWindow extends JInternalFrame {
                         txtSalary.setText("");
                         txtDept.setText("");
                         txtSSNToUpdate.setText("");
-                        ta.setText("Record updated successfully!");
+                        JOptionPane.showMessageDialog(null, "Record updated successfully!", "Updated", JOptionPane.INFORMATION_MESSAGE);
                     } catch (SQLException e1) {
-                        ta.setText("Error in updating record!");
+                        JOptionPane.showMessageDialog(null, "Error updating the record set!", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
@@ -548,6 +579,9 @@ class SelectWindow extends JInternalFrame {
     JTextField tf;
     JTextArea ta;
     JComboBox<String> cb;
+    Object data [][];
+    JTable table;
+    DefaultTableModel model;
 
     /**
      * @param d
@@ -582,8 +616,13 @@ class SelectWindow extends JInternalFrame {
             add(l1, BorderLayout.NORTH);
             
             l1 = new JPanel();
-            JScrollPane scrollPane = new JScrollPane(ta = new JTextArea(13, 90));
-            ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
+            DefaultTableModel model = new DefaultTableModel();
+            table = new JTable(model);
+            model.addColumn("SSN");
+            model.addColumn("NAME");
+            model.addColumn("SALARY");
+            model.addColumn("DEPARTMENT");
+            JScrollPane scrollPane = new JScrollPane(table);
             l1.add(scrollPane);
             add(l1, BorderLayout.CENTER);
 
@@ -596,9 +635,8 @@ class SelectWindow extends JInternalFrame {
                 public void actionPerformed(ActionEvent e) {
                     System.out.println("query button clicked");
                     String query = "";
+                    model.setRowCount(0);
                     try {
-                        ta.setFont(new Font("Monospaced", Font.PLAIN, 12));
-                        ta.setText("SSN\t\t\tNAME\t\t\tSALARY\t\t\tDEPARTMENT\n");
                         String opt = cb.getSelectedItem().toString();
                         switch(opt){
 
@@ -633,7 +671,7 @@ class SelectWindow extends JInternalFrame {
                             String name = rs.getString(2);
                             String salary = rs.getString(3);
                             String dept = rs.getString(4);
-                            ta.append(ssn + "\t\t\t" + name + "\t\t\t" + salary + "\t\t\t" + dept + "\n");
+                            model.addRow(new Object[]{ssn, name, salary, dept});
                         }
                         tf.selectAll();
                     } catch (Exception ex) {
@@ -641,7 +679,7 @@ class SelectWindow extends JInternalFrame {
                     }
                 }
             });
-
+            
             setDefaultCloseOperation(HIDE_ON_CLOSE);
         } catch (Exception e){
             JOptionPane.showMessageDialog(desktop, "Problema interno.\n"+e, "Erro", JOptionPane.ERROR_MESSAGE);
