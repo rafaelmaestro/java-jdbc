@@ -1,6 +1,10 @@
 # java-jdbc
 Aplicação utilizando java jdbc com HypersonicSQL para a disciplina de Técnicas de Programação ministrada pelo professor Rene, UNESP Bauru em 2022.
 
+## 1 - Executar o comando que está no arquivo runServer.bat no cmd
+## 2 - Compilar o arquivo EMI.java (javac EMA.java)
+## 3 - Executar o comando que está no arquivo runStatements.bat substituindo a classe `Cria` pela classe `EMA`
+
 # Descrição do Trabalho.
 
 Segundo Trabalho Semestral
